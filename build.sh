@@ -10,3 +10,6 @@ python manage.py migrate
 
 # Collect static files
 python manage.py collectstatic --no-input
+
+# Seed database
+python manage.py seed_data
