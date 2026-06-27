@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="hf-mobile-wrapper">
+    {% if messages %}
+    <div class="px-3 pt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show py-2 px-3" style="border-radius: var(--hf-radius-sm); font-size: 0.9rem;" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="hf-content-padded">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="hf-bottom-nav">
+        <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="bi bi-house-door" style="font-size: 1.4rem;"></i>
+            <span>Beranda</span>
+        </a>
+        <a href="{% url 'antrean_saya' %}" class="{% if request.resolver_match.url_name == 'antrean_saya' %}active{% endif %}">
+            <i class="bi bi-ticket-perforated" style="font-size: 1.4rem;"></i>
+            <span>Antrean</span>
+        </a>
+        <a href="{% url 'profil' %}" class="{% if request.resolver_match.url_name == 'profil' %}active{% endif %}">
+            <i class="bi bi-person-circle" style="font-size: 1.4rem;"></i>
+            <span>Profil</span>
+        </a>
+    </nav>
+</div>
+{% endblock %}

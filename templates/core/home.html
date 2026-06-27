@@ -1,0 +1,474 @@
+{% extends "base_pasien.html" %}
+{% load static %}
+
+{% block title %}HealthFlow — Beranda{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Header with greeting -->
+    <div class="hf-header-gradient">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="hf-logo">HF</div>
+            <div>
+                <h5 class="fw-bold mb-0">
+                    Halo{% if user.is_authenticated %}, {{ user.nama|truncatewords:2 }}{% endif %} 👋
+                </h5>
+                <p style="font-size: 0.8rem; opacity: 0.85; margin: 0;">
+                    <i class="bi bi-geo-alt me-1"></i>Cisalak Pasar & Sekitarnya
+                </p>
+            </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="hf-search">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <form method="get" action="{% url 'dokter_list' %}">
+                <input type="text" name="q" class="form-control" placeholder="Cari dokter atau layanan...">
+            </form>
+        </div>
+    </div>
+
+    <div class="px-3" style="margin-top: -10px;">
+        <!-- Banner Promo -->
+        {% for banner in banners %}
+        <div class="hf-banner mb-3">
+            {% if banner.gambar %}
+                <img src="{{ banner.gambar.url }}" alt="{{ banner.judul }}">
+            {% endif %}
+            <div class="hf-banner-overlay">
+                <h6 class="fw-bold mb-1">{{ banner.judul }}</h6>
+                {% if banner.deskripsi %}
+                <p style="font-size: 0.8rem; margin: 0; opacity: 0.9;">{{ banner.deskripsi|truncatewords:15 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not banners %}
+        <!-- Default banner if no banners exist -->
+        <div class="hf-card-gradient mb-3">
+            <h6 class="fw-bold"><i class="bi bi-ticket-perforated me-2"></i>Antrean Online</h6>
+            <p style="font-size: 0.85rem; margin: 0; opacity: 0.9;">Ambil nomor antrean dari rumah, tanpa perlu datang pagi!</p>
+            <a href="{% url 'dokter_list' %}" class="btn btn-light btn-sm mt-2 fw-semibold" style="border-radius: 20px;">Daftar Sekarang</a>
+        </div>
+        {% endif %}
+
+        <!-- Quick actions -->
+        {% if user.is_authenticated %}
+        <div class="row g-2 mb-3">
+            <div class="col-6">
+                <a href="{% url 'dokter_list' %}" class="hf-card p-3 text-center text-decoration-none d-block">
+                    <i class="bi bi-search-heart text-gradient" style="font-size: 1.8rem;"></i>
+                    <p class="fw-semibold mb-0 mt-1" style="font-size: 0.85rem; color: #333;">Cari Dokter</p>
+                </a>
+            </div>
+            <div class="col-6">
+                <a href="{% url 'antrean_saya' %}" class="hf-card p-3 text-center text-decoration-none d-block">
+                    <i class="bi bi-clock-history text-gradient" style="font-size: 1.8rem;"></i>
+                    <p class="fw-semibold mb-0 mt-1" style="font-size: 0.85rem; color: #333;">Antrean Saya</p>
+                </a>
+            </div>
+            <div class="col-6">
+                <a href="{% url 'riwayat_list' %}" class="hf-card p-3 text-center text-decoration-none d-block">
+                    <i class="bi bi-journal-text text-gradient" style="font-size: 1.8rem;"></i>
+                    <p class="fw-semibold mb-0 mt-1" style="font-size: 0.85rem; color: #333;">Riwayat</p>
+                </a>
+            </div>
+            <div class="col-6">
+                <a href="{% url 'profil' %}" class="hf-card p-3 text-center text-decoration-none d-block">
+                    <i class="bi bi-person-gear text-gradient" style="font-size: 1.8rem;"></i>
+                    <p class="fw-semibold mb-0 mt-1" style="font-size: 0.85rem; color: #333;">Profil</p>
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="hf-card p-3 text-center mb-3">
+            <p class="mb-2" style="font-size: 0.9rem;">Masuk untuk mulai ambil antrean online</p>
+            <a href="{% url 'login' %}" class="btn btn-hf-primary btn-sm">Login / Daftar</a>
+        </div>
+        {% endif %}
+
+        <!-- Lokasi & Jadwal Klinik -->
+        <div class="section-title"><i class="bi bi-hospital me-1"></i> Pilihan Tempat Berobat</div>
+        {% for k in klinik_list %}
+        <a href="{% url 'dokter_list' %}?klinik={{ k.id }}" class="text-decoration-none text-dark d-block mb-3">
+            <div class="hf-card p-3" style="border-left: 4px solid #4ea8de; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="fw-bold mb-0 text-gradient">{{ k.nama }}</h6>
+                    <span class="badge bg-light text-primary border" style="font-size: 0.75rem;">Aktif</span>
+                </div>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">
+                    <i class="bi bi-geo-alt me-1"></i>{{ k.alamat }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="font-size: 0.8rem; color: #888;">
+                    <span><i class="bi bi-clock me-1"></i>{{ k.jam_operasional }}</span>
+                    <span><i class="bi bi-telephone me-1"></i>{{ k.telepon }}</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="hf-card p-3 text-center mb-3">
+            <p class="text-muted mb-0" style="font-size: 0.9rem;">Belum ada tempat berobat terdaftar.</p>
+        </div>
+        {% endfor %}
+
+        <!-- Peta Interaktif & Rekomendasi Terdekat -->
+        <div class="section-title"><i class="bi bi-map me-1"></i> Peta Interaktif & Lokasi Apotek/Klinik</div>
+        
+        <!-- Recommendation Alert -->
+        <div id="location-recommendation" class="alert alert-primary py-2 px-3 mb-3 d-flex align-items-center gap-2" style="border-radius: 12px; font-size: 0.8rem; border: none; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); color: #0369a1;">
+            <i class="bi bi-geo-alt-fill text-primary animate-pulse"></i> 
+            <span id="recommendation-text">Mengambil lokasi Anda untuk merekomendasikan apotek & klinik terdekat...</span>
+        </div>
+
+        <!-- Leaflet Map Container -->
+        <div id="leaflet-map" style="height: 320px; border-radius: 16px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; z-index: 1;"></div>
+
+        <!-- Location Info Panel (hidden by default) -->
+        <div id="details-panel" class="hf-card p-3 mb-3 d-none animate-slide-up" style="border: 1px solid #eee; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); background-color: #fff;">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span id="details-badge" class="badge bg-light text-primary border mb-1" style="font-size: 0.75rem;">Kategori</span>
+                    <h5 id="details-name" class="fw-bold mb-1 text-gradient">Nama Tempat</h5>
+                </div>
+                <button type="button" class="btn-close" style="font-size: 0.75rem;" onclick="closeDetailsPanel()"></button>
+            </div>
+            
+            <p id="details-address" class="text-muted mb-1" style="font-size: 0.8rem; margin: 0;"><i class="bi bi-geo-alt me-1"></i> <span>Alamat</span></p>
+            <p id="details-phone" class="text-muted mb-1" style="font-size: 0.8rem; margin: 0;"><i class="bi bi-telephone me-1"></i> <span>Telepon</span></p>
+            <p id="details-hours" class="text-muted mb-2" style="font-size: 0.8rem; margin: 0;"><i class="bi bi-clock me-1"></i> <span>Jam Operasional</span></p>
+            <p id="details-distance" class="text-primary fw-bold mb-3 d-none" style="font-size: 0.8rem; margin: 0;"><i class="bi bi-compass-fill me-1"></i> Jarak dari Anda: <span id="distance-value">0</span></p>
+            
+            <div id="booking-section" class="border-top pt-3 mt-2">
+                <h6 class="fw-bold mb-2 text-dark" id="booking-title" style="font-size: 0.85rem;"><i class="bi bi-calendar-plus me-1 text-primary"></i> Booking Dokter Sekarang</h6>
+                
+                <!-- Group or list of doctors -->
+                <div id="doctors-list" class="d-flex flex-column gap-2 mb-3">
+                    <!-- Javascript populated -->
+                </div>
+                
+                <!-- Quick booking Form -->
+                <div id="quick-booking-form-container" class="d-none border-top pt-3">
+                    <h6 class="fw-bold text-gradient mb-2" style="font-size: 0.85rem;"><i class="bi bi-card-text me-1"></i> Konfirmasi Booking Anda</h6>
+                    <p class="mb-2" style="font-size:0.8rem; color:#666;">Dokter Pilihan: <strong id="booking-doc-name" class="text-dark">dr. Andi</strong></p>
+                    
+                    <form id="quick-booking-form" method="post" action="" class="hf-form">
+                        {% csrf_token %}
+                        <div class="mb-2">
+                            <label class="form-label mb-1" style="font-size:0.75rem; font-weight:600;">Pilih Tanggal Kunjungan</label>
+                            <input type="date" name="tanggal" id="booking-date-input" class="form-control form-control-sm" style="border-radius: 8px;" required>
+                            <small class="text-primary d-block mt-1" id="booking-day-hint" style="font-size:0.7rem; font-weight: 500;"></small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label mb-1" style="font-size:0.75rem; font-weight:600;">Keluhan Kesehatan</label>
+                            <textarea name="keluhan" class="form-control form-control-sm" rows="2" style="border-radius: 8px;" placeholder="Tuliskan keluhan Anda di sini agar dokter dapat mendiagnosis awal..." required></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-hf-primary btn-sm w-100" style="border-radius: 8px;"><i class="bi bi-check-circle me-1"></i> Booking Sekarang</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;" onclick="cancelQuickBooking()">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+    .animate-pulse {
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+    }
+    .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .doctor-booking-card {
+        border: 1px solid #f0f0f0;
+        border-radius: 12px;
+        padding: 10px;
+        background-color: #fafafa;
+        transition: border-color 0.2s;
+    }
+    .doctor-booking-card:hover {
+        border-color: #4ea8de;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    // Initialize map
+    const defaultLat = -6.3503;
+    const defaultLng = 106.8643; // Center of Pasar Cisalak Depok
+    
+    const map = L.map('leaflet-map').setView([defaultLat, defaultLng], 15);
+    
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Custom icons using DivIcon for perfect rendering
+    const userIcon = L.divIcon({
+        html: '<div style="background-color: #007bff; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 6px rgba(0,123,255,0.4); animation: pulse 1.5s infinite;"></div>',
+        className: 'custom-div-icon',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+    });
+
+    const clinicIcon = L.divIcon({
+        html: '<div style="background-color: #10b981; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: white;"><i class="bi bi-hospital" style="font-size: 11px; line-height: 1;"></i></div>',
+        className: 'custom-div-icon',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+    });
+
+    const pharmacyIcon = L.divIcon({
+        html: '<div style="background-color: #f59e0b; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: white;"><i class="bi bi-prescription2" style="font-size: 11px; line-height: 1;"></i></div>',
+        className: 'custom-div-icon',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+    });
+
+    // Populate clinics from Django serialized JSON
+    const clinics = JSON.parse('{{ clinics_json|escapejs }}');
+
+    // Dummy Pharmacies around Pasar Cisalak are now loaded directly from Django database under clinics
+
+    // Doctors data parsed from JSON
+    const doctors = JSON.parse('{{ doctors_json|escapejs }}');
+    const isAuthenticated = "{{ is_authenticated_pasien|yesno:'true,false' }}" === "true";
+    
+    let userLat = null;
+    let userLng = null;
+    let userMarker = null;
+
+    // Haversine distance calculator
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const d = R * c; // Distance in km
+        return d;
+    }
+
+    // Load place markers
+    function addMarkers() {
+        clinics.forEach(c => {
+            const icon = c.type === 'Apotek' ? pharmacyIcon : clinicIcon;
+            const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(map);
+            marker.on('click', () => showDetails(c));
+        });
+    }
+
+    addMarkers();
+
+    // Geolocation Handling
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLat = position.coords.latitude;
+                userLng = position.coords.longitude;
+                
+                // Add user location marker
+                userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map);
+                
+                // Adjust map view to include user and center
+                const group = new L.featureGroup([
+                    userMarker, 
+                    ...clinics.map(c => L.marker([c.lat, c.lng]))
+                ]);
+                map.fitBounds(group.getBounds().pad(0.1));
+                
+                // Recommend closest place
+                recommendClosest();
+            },
+            (error) => {
+                console.warn("Geolocation failed or denied. Using default center.", error);
+                document.getElementById('location-recommendation').classList.add('d-none');
+            }
+        );
+    } else {
+        document.getElementById('location-recommendation').classList.add('d-none');
+    }
+
+    function recommendClosest() {
+        let closestPlace = null;
+        let minDistance = Infinity;
+
+        // Check clinics & pharmacies
+        clinics.forEach(c => {
+            const dist = calculateDistance(userLat, userLng, c.lat, c.lng);
+            c.distance = dist;
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestPlace = c;
+            }
+        });
+
+        if (closestPlace) {
+            const recText = `Rekomendasi Terdekat: <strong>${closestPlace.nama}</strong> (${minDistance.toFixed(2)} km dari Anda). Ketuk ikon di peta untuk info & booking.`;
+            document.getElementById('recommendation-text').innerHTML = recText;
+            document.getElementById('location-recommendation').classList.remove('d-none');
+        }
+    }
+
+    // Detail Panel Logic
+    function showDetails(place) {
+        // Show panel
+        const panel = document.getElementById('details-panel');
+        panel.classList.remove('d-none');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Update basic details
+        document.getElementById('details-name').innerText = place.nama;
+        document.getElementById('details-badge').innerText = place.type;
+        document.getElementById('details-address').querySelector('span').innerText = place.alamat;
+        document.getElementById('details-phone').querySelector('span').innerText = place.telepon;
+        document.getElementById('details-hours').querySelector('span').innerText = place.jam_operasional;
+
+        // Distance displaying
+        const distEl = document.getElementById('details-distance');
+        if (userLat && userLng) {
+            const dist = calculateDistance(userLat, userLng, place.lat, place.lng);
+            document.getElementById('distance-value').innerText = `${dist.toFixed(2)} km`;
+            distEl.classList.remove('d-none');
+        } else {
+            distEl.classList.add('d-none');
+        }
+
+        // Hide booking form by default
+        document.getElementById('quick-booking-form-container').classList.add('d-none');
+
+        // Populate doctor booking list
+        const docListContainer = document.getElementById('doctors-list');
+        const bookingTitle = document.getElementById('booking-title');
+        docListContainer.innerHTML = '';
+
+        if (!isAuthenticated) {
+            bookingTitle.innerHTML = `<i class="bi bi-lock-fill me-1 text-danger"></i> Silakan Login`;
+            docListContainer.innerHTML = `
+                <div class="text-center py-2">
+                    <p style="font-size: 0.8rem; color: #666;" class="mb-2">Anda harus login sebagai pasien untuk melakukan booking dokter.</p>
+                    <a href="{% url 'login' %}" class="btn btn-hf-primary btn-sm px-3" style="border-radius: 8px;">Login / Daftar</a>
+                </div>
+            `;
+            return;
+        }
+
+        // Determine which doctors to show
+        let placeDoctors = [];
+        if (place.type === 'Klinik') {
+            bookingTitle.innerHTML = `<i class="bi bi-calendar-plus me-1 text-primary"></i> Booking Dokter di ${place.nama}`;
+            placeDoctors = doctors.filter(d => d.klinik_id === place.id);
+        } else {
+            // For Pharmacy (Apotek), recommend all doctors in nearby clinics
+            bookingTitle.innerHTML = `<i class="bi bi-calendar-plus me-1 text-primary"></i> Booking Dokter Terdekat dari ${place.nama}`;
+            placeDoctors = doctors; // Show all doctors
+        }
+
+        if (placeDoctors.length === 0) {
+            docListContainer.innerHTML = `<p class="text-muted mb-0" style="font-size: 0.8rem; font-style: italic;">Belum ada dokter praktek terdaftar di tempat ini.</p>`;
+        } else {
+            placeDoctors.forEach(doc => {
+                if (doc.schedules.length === 0) return;
+                
+                let docDiv = document.createElement('div');
+                docDiv.className = 'doctor-booking-card d-flex justify-content-between align-items-center';
+                
+                let schedulesHtml = doc.schedules.map(s => `<option value="${s.id}" data-hari="${s.hari}">${s.hari} (${s.jam_mulai}-${s.jam_selesai})</option>`).join('');
+                
+                docDiv.innerHTML = `
+                    <div>
+                        <strong style="font-size: 0.85rem;" class="text-dark">dr. ${doc.nama}</strong>
+                        <span class="badge bg-light text-muted border ms-1" style="font-size:0.7rem;">${doc.layanan}</span>
+                        <div class="mt-1">
+                            <select id="select-sched-${doc.id}" class="form-select form-select-sm py-0 px-2" style="font-size: 0.75rem; border-radius:6px; display:inline-block; width:auto;">
+                                ${schedulesHtml}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-hf-primary btn-sm py-1 px-3" style="border-radius: 8px; font-size:0.75rem;" onclick="startQuickBooking(${doc.id}, '${doc.nama}')">
+                        Booking
+                    </button>
+                `;
+                docListContainer.appendChild(docDiv);
+            });
+        }
+    }
+
+    function closeDetailsPanel() {
+        document.getElementById('details-panel').classList.add('d-none');
+    }
+
+    function startQuickBooking(docId, docNama) {
+        const doc = doctors.find(d => d.id === docId);
+        if (!doc) return;
+
+        const select = document.getElementById(`select-sched-${docId}`);
+        if (!select) return;
+
+        const scheduleId = select.value;
+        const scheduleHari = select.options[select.selectedIndex].getAttribute('data-hari');
+
+        if (!scheduleId) return;
+
+        // Setup form Action URL
+        const form = document.getElementById('quick-booking-form');
+        form.action = `/reservasi/buat/${scheduleId}/`;
+
+        // Update display details
+        document.getElementById('booking-doc-name').innerText = `dr. ${docNama} (${scheduleHari})`;
+        
+        // Suggest the correct future date for this schedule's day name
+        const nextDate = getNextDateForDay(scheduleHari);
+        const dateInput = document.getElementById('booking-date-input');
+        dateInput.value = nextDate.toISOString().split('T')[0];
+        dateInput.min = new Date().toISOString().split('T')[0]; // Can't choose past date
+
+        document.getElementById('booking-day-hint').innerText = `* Catatan: Jadwal praktik hanya berlaku pada hari ${scheduleHari}. Sistem secara otomatis mengarahkan tanggal ke hari ${scheduleHari} terdekat (${nextDate.toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}).`;
+
+        // Show form
+        const formContainer = document.getElementById('quick-booking-form-container');
+        formContainer.classList.remove('d-none');
+        formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function cancelQuickBooking() {
+        document.getElementById('quick-booking-form-container').classList.add('d-none');
+    }
+
+    function getNextDateForDay(dayName) {
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const targetDay = days.indexOf(dayName);
+        if (targetDay === -1) return new Date();
+        
+        const today = new Date();
+        const resultDate = new Date(today);
+        
+        let daysToAdd = targetDay - today.getDay();
+        if (daysToAdd < 0) {
+            daysToAdd += 7;
+        }
+        resultDate.setDate(today.getDate() + daysToAdd);
+        return resultDate;
+    }
+</script>
+{% endblock %}
+{% endblock %}

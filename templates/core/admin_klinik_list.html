@@ -1,0 +1,55 @@
+{% extends "base_admin.html" %}
+{% block page_title %}Kelola Tempat Praktik{% endblock %}
+{% block title %}Kelola Tempat Praktik — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="text-muted mb-0">Kelola daftar klinik dan tempat praktik yang terdaftar di platform</p>
+    <a href="{% url 'admin_klinik_create' %}" class="btn btn-hf-primary"><i class="bi bi-plus-lg me-1"></i> Tambah Tempat Praktik</a>
+</div>
+<div class="table-responsive hf-table">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Tipe</th>
+                <th>Alamat</th>
+                <th>Jam Operasional</th>
+                <th>Telepon</th>
+                <th>Aktif</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for k in klinik_list %}
+            <tr>
+                <td class="fw-semibold">{{ k.nama }}</td>
+                <td>
+                    {% if k.tipe == 'Apotek' %}
+                    <span class="badge bg-warning text-dark">Apotek</span>
+                    {% else %}
+                    <span class="badge bg-info text-white">Klinik</span>
+                    {% endif %}
+                </td>
+                <td>{{ k.alamat|truncatechars:40 }}</td>
+                <td>{{ k.jam_operasional }}</td>
+                <td>{{ k.telepon }}</td>
+                <td>
+                    {% if k.aktif %}
+                    <span class="badge bg-success">Aktif</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Nonaktif</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'admin_klinik_edit' k.pk %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'admin_klinik_delete' k.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center text-muted py-4">Belum ada tempat praktik.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

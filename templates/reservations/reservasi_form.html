@@ -1,0 +1,43 @@
+{% extends "base_pasien.html" %}
+{% block title %}Buat Reservasi — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="p-3 fade-in">
+    <a href="{% url 'dokter_detail' jadwal.dokter.pk %}" class="text-decoration-none text-muted d-inline-block mb-3" style="font-size:0.9rem;">
+        <i class="bi bi-arrow-left me-1"></i> Kembali
+    </a>
+
+    <div class="hf-card-gradient mb-3 text-center">
+        <h6 class="fw-bold mb-1"><i class="bi bi-calendar-plus me-1"></i> Buat Reservasi</h6>
+        <p style="font-size:0.85rem; opacity:0.9; margin:0;">dr. {{ jadwal.dokter.nama }} — {{ jadwal.hari }} {{ jadwal.jam_mulai|time:"H:i" }}–{{ jadwal.jam_selesai|time:"H:i" }}</p>
+    </div>
+
+    <div class="hf-card p-3">
+        <form method="post" class="hf-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="text-danger" style="font-size:0.8rem;">{{ field.errors.0 }}</div>{% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-hf-primary w-100 py-3">
+                <i class="bi bi-check-circle me-1"></i> Konfirmasi Reservasi
+            </button>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Pre-fill date from URL param
+const urlParams = new URLSearchParams(window.location.search);
+const tanggal = urlParams.get('tanggal');
+if (tanggal) {
+    const input = document.getElementById('id_tanggal');
+    if (input) input.value = tanggal;
+}
+</script>
+{% endblock %}
+{% endblock %}

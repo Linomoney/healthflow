@@ -1,0 +1,62 @@
+{% extends "base_pasien.html" %}
+
+{% block title %}Riwayat Kunjungan — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="p-3 fade-in">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h5 class="fw-bold mb-1">Riwayat Kunjungan</h5>
+            <p class="text-muted mb-0" style="font-size: 0.85rem;">Daftar kunjungan pemeriksaan Anda di klinik.</p>
+        </div>
+        <div class="hf-logo">HF</div>
+    </div>
+
+    <!-- History List -->
+    {% if riwayat_list %}
+        <div class="d-flex flex-column gap-3">
+            {% for item in riwayat_list %}
+                <div class="hf-card p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="badge-selesai">Selesai</span>
+                            <span class="text-muted" style="font-size: 0.8rem;">
+                                <i class="bi bi-calendar3 me-1"></i>{{ item.tanggal_kunjungan|date:"d M Y" }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <h6 class="fw-bold mb-1" style="color: #333;">
+                        dr. {{ item.dokter.nama }}
+                    </h6>
+                    <p class="text-muted mb-2" style="font-size: 0.85rem;">
+                        <i class="bi bi-heart-pulse me-1 text-primary"></i>Layanan: {{ item.dokter.jenis_layanan.nama_layanan }}
+                    </p>
+
+                    {% if item.catatan %}
+                        <div class="p-2 bg-light rounded" style="font-size: 0.85rem; border-left: 3px solid var(--hf-teal);">
+                            <span class="fw-bold d-block text-muted mb-1" style="font-size: 0.75rem;">Catatan Dokter/Admin:</span>
+                            {{ item.catatan|linebreaksbr }}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0" style="font-size: 0.8rem; font-style: italic;">
+                            Tidak ada catatan tambahan.
+                        </p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <i class="bi bi-journal-x text-muted mb-3" style="font-size: 3rem; display: block; opacity: 0.4;"></i>
+            <h6 class="fw-bold text-muted">Belum Ada Riwayat Kunjungan</h6>
+            <p class="text-muted px-4" style="font-size: 0.85rem;">
+                Riwayat pemeriksaan Anda akan tampil di sini setelah Anda menyelesaikan antrean konsultasi dengan dokter.
+            </p>
+            <a href="{% url 'dokter_list' %}" class="btn btn-hf-primary btn-sm mt-2">Cari Dokter & Reservasi</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

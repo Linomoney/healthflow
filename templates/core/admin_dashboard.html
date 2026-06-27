@@ -1,0 +1,55 @@
+{% extends "base_admin.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block title %}Dashboard Admin — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4 fade-in">
+    <div class="col-md-6 col-lg-3">
+        <div class="hf-stat-card blue">
+            <div class="hf-stat-number">{{ jumlah_antrean_aktif }}</div>
+            <div class="hf-stat-label"><i class="bi bi-list-ol me-1"></i>Antrean Aktif Hari Ini</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="hf-stat-card teal">
+            <div class="hf-stat-number">{{ jumlah_dokter_aktif }}</div>
+            <div class="hf-stat-label"><i class="bi bi-person-badge me-1"></i>Dokter Aktif</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="hf-stat-card cyan">
+            <div class="hf-stat-number">{{ jumlah_pasien }}</div>
+            <div class="hf-stat-label"><i class="bi bi-people me-1"></i>Pasien Terdaftar</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="hf-stat-card green">
+            <div class="hf-stat-number">{{ jumlah_reservasi_hari_ini }}</div>
+            <div class="hf-stat-label"><i class="bi bi-calendar-check me-1"></i>Reservasi Hari Ini</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="hf-card p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-lightning me-2"></i>Aksi Cepat</h6>
+            <div class="d-grid gap-2">
+                <a href="{% url 'admin_antrean' %}" class="btn btn-hf-primary"><i class="bi bi-list-ol me-1"></i> Monitor Antrean</a>
+                <a href="{% url 'admin_laporan' %}" class="btn btn-hf-outline"><i class="bi bi-file-earmark-bar-graph me-1"></i> Lihat Laporan</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="hf-card p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Informasi Sistem</h6>
+            <p style="font-size: 0.9rem; color: #666;">
+                <strong>HealthFlow</strong> — Sistem Antrean Digital<br>
+                Klinik Cisalak Pasar<br>
+                <span class="text-muted">Versi 1.0 — Django</span>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

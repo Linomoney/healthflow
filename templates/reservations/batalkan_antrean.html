@@ -1,0 +1,22 @@
+{% extends "base_pasien.html" %}
+{% block title %}Batalkan Antrean — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="p-3 fade-in">
+    <div class="hf-card p-4 text-center">
+        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold mt-3">Batalkan Antrean?</h5>
+        <p class="text-muted">
+            Anda yakin ingin membatalkan antrean <strong>No. {{ antrian.nomor_antrian }}</strong>
+            untuk dr. {{ antrian.reservasi.jadwal.dokter.nama }}?
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-hf-danger"><i class="bi bi-x-circle me-1"></i> Ya, Batalkan</button>
+                <a href="{% url 'antrean_saya' %}" class="btn btn-hf-outline">Kembali</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

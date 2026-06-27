@@ -1,0 +1,29 @@
+{% extends "base_admin.html" %}
+{% block page_title %}Kelola Jenis Layanan{% endblock %}
+{% block title %}Jenis Layanan — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <a href="{% url 'admin_layanan_create' %}" class="btn btn-hf-primary"><i class="bi bi-plus-lg me-1"></i> Tambah Layanan</a>
+</div>
+<div class="table-responsive hf-table">
+    <table class="table table-hover mb-0">
+        <thead><tr><th>Nama Layanan</th><th>Deskripsi</th><th>Aktif</th><th>Aksi</th></tr></thead>
+        <tbody>
+            {% for l in layanan_list %}
+            <tr>
+                <td class="fw-semibold">{{ l.nama_layanan }}</td>
+                <td>{{ l.deskripsi|truncatewords:10|default:"-" }}</td>
+                <td>{% if l.aktif %}<span class="badge bg-success">Aktif</span>{% else %}<span class="badge bg-secondary">Nonaktif</span>{% endif %}</td>
+                <td>
+                    <a href="{% url 'admin_layanan_edit' l.pk %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'admin_layanan_delete' l.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted py-4">Belum ada data.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

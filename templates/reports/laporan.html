@@ -1,0 +1,149 @@
+{% extends "base_admin.html" %}
+
+{% block title %}Laporan Rekapitulasi — HealthFlow{% endblock %}
+{% block page_title %}Laporan Rekapitulasi{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Filter Card -->
+    <div class="hf-card p-4 mb-4 no-print">
+        <h5 class="fw-bold mb-3"><i class="bi bi-filter-square me-2 text-primary"></i>Filter Periode</h5>
+        <form method="get" class="row g-3 align-items-end hf-form">
+            <div class="col-md-3">
+                <label for="periode" class="form-label">Pilih Periode</label>
+                <select name="periode" id="periode" class="form-select" onchange="toggleCustomDates(this.value)">
+                    <option value="harian" {% if periode == 'harian' %}selected{% endif %}>Hari Ini</option>
+                    <option value="mingguan" {% if periode == 'mingguan' %}selected{% endif %}>Minggu Ini</option>
+                    <option value="bulanan" {% if periode == 'bulanan' %}selected{% endif %}>Bulan Ini</option>
+                    <option value="custom" {% if periode == 'custom' %}selected{% endif %}>Custom Range</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3 custom-date-group" {% if periode != 'custom' %}style="display: none;"{% endif %}>
+                <label for="start" class="form-label">Tanggal Mulai</label>
+                <input type="date" name="start" id="start" class="form-control" value="{{ start|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="col-md-3 custom-date-group" {% if periode != 'custom' %}style="display: none;"{% endif %}>
+                <label for="end" class="form-label">Tanggal Selesai</label>
+                <input type="date" name="end" id="end" class="form-control" value="{{ end|date:'Y-m-d' }}">
+            </div>
+            
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-hf-primary w-100">
+                    <i class="bi bi-search me-1"></i>Terapkan Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="hf-stat-card blue">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="hf-stat-number">{{ total_reservasi }}</div>
+                        <div class="hf-stat-label">Total Reservasi</div>
+                    </div>
+                    <i class="bi bi-calendar-check text-primary" style="font-size: 2rem; opacity: 0.4;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="hf-stat-card teal">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="hf-stat-number text-success">{{ total_selesai }}</div>
+                        <div class="hf-stat-label">Selesai Dilayani</div>
+                    </div>
+                    <i class="bi bi-check-circle text-success" style="font-size: 2rem; opacity: 0.4;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="hf-stat-card cyan">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="hf-stat-number text-danger">{{ total_dibatalkan }}</div>
+                        <div class="hf-stat-label">Dibatalkan</div>
+                    </div>
+                    <i class="bi bi-x-circle text-danger" style="font-size: 2rem; opacity: 0.4;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Table Card -->
+    <div class="hf-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h5 class="fw-bold mb-1">Rekapitulasi Kunjungan Pasien</h5>
+                <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                    Periode: <strong>{{ start|date:"d M Y" }}</strong> s/d <strong>{{ end|date:"d M Y" }}</strong>
+                </p>
+            </div>
+            
+            <div class="d-flex gap-2 no-print">
+                <a href="{% url 'export_excel' %}?periode={{ periode }}&start={{ start|date:'Y-m-d' }}&end={{ end|date:'Y-m-d' }}" class="btn btn-outline-success btn-sm fw-bold">
+                    <i class="bi bi-file-earmark-excel me-1"></i>Excel
+                </a>
+                <a href="{% url 'export_pdf' %}?periode={{ periode }}&start={{ start|date:'Y-m-d' }}&end={{ end|date:'Y-m-d' }}" class="btn btn-outline-danger btn-sm fw-bold">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-secondary btn-sm fw-bold">
+                    <i class="bi bi-printer me-1"></i>Cetak
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table hf-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">No</th>
+                        <th>Dokter</th>
+                        <th>Jenis Layanan</th>
+                        <th class="text-center">Total Reservasi</th>
+                        <th class="text-center">Selesai</th>
+                        <th class="text-center">Dibatalkan</th>
+                        <th class="text-center">Aktif</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td class="fw-semibold">dr. {{ row.dokter.nama }}</td>
+                        <td>{{ row.dokter.jenis_layanan.nama_layanan }}</td>
+                        <td class="text-center fw-bold">{{ row.jumlah }}</td>
+                        <td class="text-center text-success fw-bold">{{ row.selesai }}</td>
+                        <td class="text-center text-danger fw-bold">{{ row.dibatalkan }}</td>
+                        <td class="text-center text-primary fw-bold">{{ row.aktif }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox me-2"></i>Tidak ada data rekapitulasi untuk periode ini.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleCustomDates(value) {
+        const groups = document.querySelectorAll('.custom-date-group');
+        if (value === 'custom') {
+            groups.forEach(g => g.style.display = 'block');
+        } else {
+            groups.forEach(g => g.style.display = 'none');
+        }
+    }
+</script>
+{% endblock %}

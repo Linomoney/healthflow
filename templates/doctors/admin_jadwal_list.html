@@ -1,0 +1,34 @@
+{% extends "base_admin.html" %}
+{% block page_title %}Jadwal dr. {{ dokter.nama }}{% endblock %}
+{% block title %}Jadwal Dokter — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{% url 'admin_dokter_list' %}" class="text-decoration-none text-muted" style="font-size:0.85rem;"><i class="bi bi-arrow-left me-1"></i>Kembali ke Daftar Dokter</a>
+    </div>
+    <a href="{% url 'admin_jadwal_create' dokter.pk %}" class="btn btn-hf-primary"><i class="bi bi-plus-lg me-1"></i> Tambah Jadwal</a>
+</div>
+<div class="table-responsive hf-table">
+    <table class="table table-hover mb-0">
+        <thead><tr><th>Hari</th><th>Jam Mulai</th><th>Jam Selesai</th><th>Kuota Harian</th><th>Aktif</th><th>Aksi</th></tr></thead>
+        <tbody>
+            {% for j in jadwal_list %}
+            <tr>
+                <td class="fw-semibold">{{ j.hari }}</td>
+                <td>{{ j.jam_mulai|time:"H:i" }}</td>
+                <td>{{ j.jam_selesai|time:"H:i" }}</td>
+                <td>{{ j.kuota_harian }}</td>
+                <td>{% if j.aktif %}<span class="badge bg-success">Aktif</span>{% else %}<span class="badge bg-secondary">Nonaktif</span>{% endif %}</td>
+                <td>
+                    <a href="{% url 'admin_jadwal_edit' dokter.pk j.pk %}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'admin_jadwal_delete' dokter.pk j.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-4">Belum ada jadwal.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

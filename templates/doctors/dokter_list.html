@@ -1,0 +1,52 @@
+{% extends "base_pasien.html" %}
+{% block title %}Cari Dokter — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="p-3 fade-in">
+    <h5 class="fw-bold mb-3">Cari Dokter</h5>
+    <form method="get" class="mb-3">
+        <div class="hf-search mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Nama dokter atau layanan...">
+        </div>
+        <select name="klinik" class="form-select" onchange="this.form.submit()" style="border-radius: 12px; border: 1px solid #eee; padding: 0.5rem 1rem; font-size: 0.85rem; background-color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+            <option value="">-- Semua Klinik / Tempat Praktik --</option>
+            {% for k in klinik_list %}
+            <option value="{{ k.id }}" {% if k.id == selected_klinik_id %}selected{% endif %}>{{ k.nama }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if selected_klinik and selected_klinik.tipe == 'Apotek' %}
+    <div class="alert py-2 px-3 mb-3 d-flex align-items-center gap-2" style="border-radius: 12px; font-size: 0.82rem; border: none; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e;">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>Menampilkan semua dokter yang tersedia di sekitar <strong>{{ selected_klinik.nama }}</strong>. Anda bisa langsung booking dari sini.</span>
+    </div>
+    {% endif %}
+    {% for d in dokter_list %}
+    <a href="{% url 'dokter_detail' d.pk %}" class="hf-doctor-card mb-3 d-flex text-decoration-none">
+        {% if d.foto %}
+            <img src="{{ d.foto.url }}" class="hf-doctor-photo" alt="{{ d.nama }}">
+        {% else %}
+            <div class="hf-doctor-photo-placeholder">
+                <i class="bi bi-person" style="color: var(--hf-blue);"></i>
+            </div>
+        {% endif %}
+        <div>
+            <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">dr. {{ d.nama }}</h6>
+            <p class="mb-1" style="font-size: 0.8rem; color: #888;">
+                <i class="bi bi-heart-pulse me-1"></i>{{ d.jenis_layanan.nama_layanan }}
+            </p>
+            <p class="mb-0 text-gradient" style="font-size: 0.75rem; font-weight: 500;">
+                <i class="bi bi-hospital me-1"></i>{{ d.klinik.nama }}
+            </p>
+        </div>
+    </a>
+    {% empty %}
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-search" style="font-size: 2rem;"></i>
+        <p class="mt-2">Tidak ada dokter ditemukan.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

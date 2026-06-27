@@ -1,0 +1,59 @@
+{% extends "base_pasien.html" %}
+{% block title %}dr. {{ dokter.nama }} — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="p-3 fade-in">
+    <!-- Back button -->
+    <a href="{% url 'dokter_list' %}" class="text-decoration-none text-muted d-inline-block mb-3" style="font-size: 0.9rem;">
+        <i class="bi bi-arrow-left me-1"></i> Kembali
+    </a>
+
+    <!-- Doctor info -->
+    <div class="hf-card p-3 mb-3 text-center">
+        {% if dokter.foto %}
+            <img src="{{ dokter.foto.url }}" style="width:80px; height:80px; border-radius: var(--hf-radius-sm); object-fit:cover;" alt="{{ dokter.nama }}">
+        {% else %}
+            <div class="hf-doctor-photo-placeholder mx-auto" style="width:80px;height:80px;font-size:2rem;">
+                <i class="bi bi-person" style="color: var(--hf-blue);"></i>
+            </div>
+        {% endif %}
+        <h5 class="fw-bold mt-2 mb-1">dr. {{ dokter.nama }}</h5>
+        <span class="badge bg-info text-dark">{{ dokter.jenis_layanan.nama_layanan }}</span>
+    </div>
+
+    <!-- Jadwal 7 hari ke depan -->
+    <div class="section-title"><i class="bi bi-calendar3 me-1"></i> Jadwal Tersedia (7 Hari Ke Depan)</div>
+
+    {% if jadwal_info %}
+        {% for j in jadwal_info %}
+        <div class="hf-card p-3 mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong style="font-size:0.9rem;">{{ j.nama_hari }}, {{ j.tanggal|date:"d M Y" }}</strong>
+                    <p class="mb-0 text-muted" style="font-size:0.8rem;">
+                        <i class="bi bi-clock me-1"></i>{{ j.jadwal.jam_mulai|time:"H:i" }} – {{ j.jadwal.jam_selesai|time:"H:i" }}
+                    </p>
+                    <p class="mb-0" style="font-size:0.8rem;">
+                        {% if j.sisa_kuota > 0 %}
+                            <span class="text-success fw-semibold">Sisa kuota: {{ j.sisa_kuota }}</span>
+                        {% else %}
+                            <span class="text-danger fw-semibold">Kuota penuh</span>
+                        {% endif %}
+                    </p>
+                </div>
+                {% if j.sisa_kuota > 0 and user.is_authenticated %}
+                    <a href="{% url 'reservasi_create' j.jadwal.pk %}?tanggal={{ j.tanggal|date:'Y-m-d' }}" class="btn btn-hf-primary btn-sm">Daftar</a>
+                {% elif not user.is_authenticated %}
+                    <a href="{% url 'login' %}" class="btn btn-hf-outline btn-sm">Login</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center text-muted py-4">
+            <i class="bi bi-calendar-x" style="font-size:2rem;"></i>
+            <p class="mt-2">Tidak ada jadwal tersedia minggu ini.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

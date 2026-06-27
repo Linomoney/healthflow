@@ -1,0 +1,241 @@
+{% extends "base_admin.html" %}
+{% block page_title %}Monitor Antrean Aktif{% endblock %}
+{% block title %}Monitor Antrean — HealthFlow{% endblock %}
+
+{% block content %}
+<div id="antrean-admin"
+     hx-get="{% url 'admin_antrean_partial' %}{{ query_params }}"
+     hx-trigger="every 8s"
+     hx-target="#antrean-admin"
+     hx-swap="innerHTML">
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4 fade-in">
+        <div class="col-6 col-lg-3">
+            <div class="hf-stat-card blue" style="cursor:pointer;" onclick="filterByStatus('')">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="hf-stat-number">{{ summary_total }}</div>
+                        <div class="hf-stat-label"><i class="bi bi-list-ul me-1"></i>Total Antrean</div>
+                    </div>
+                    <i class="bi bi-clipboard-data" style="font-size: 2rem; opacity: 0.3; color: var(--hf-blue);"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="hf-stat-card cyan" style="cursor:pointer;{% if status_filter == 'MENUNGGU' %} outline: 2px solid var(--hf-blue);{% endif %}" onclick="filterByStatus('MENUNGGU')">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="hf-stat-number" style="color: #f59e0b;">{{ summary_menunggu }}</div>
+                        <div class="hf-stat-label"><i class="bi bi-hourglass-split me-1"></i>Menunggu</div>
+                    </div>
+                    <i class="bi bi-hourglass-split" style="font-size: 2rem; opacity: 0.3; color: #f59e0b;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="hf-stat-card teal" style="cursor:pointer;{% if status_filter == 'DIPANGGIL' %} outline: 2px solid #10b981;{% endif %}" onclick="filterByStatus('DIPANGGIL')">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="hf-stat-number" style="color: #10b981;">{{ summary_dipanggil }}</div>
+                        <div class="hf-stat-label"><i class="bi bi-megaphone me-1"></i>Dipanggil</div>
+                    </div>
+                    <i class="bi bi-megaphone" style="font-size: 2rem; opacity: 0.3; color: #10b981;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="hf-stat-card green" style="cursor:pointer;{% if status_filter == 'SELESAI' %} outline: 2px solid #22c55e;{% endif %}" onclick="filterByStatus('SELESAI')">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="hf-stat-number" style="color: #22c55e;">{{ summary_selesai }}</div>
+                        <div class="hf-stat-label"><i class="bi bi-check-circle me-1"></i>Selesai</div>
+                    </div>
+                    <i class="bi bi-check-circle" style="font-size: 2rem; opacity: 0.3; color: #22c55e;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="hf-card p-3 mb-4">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label mb-1" style="font-size:0.78rem; font-weight:600; color:#666;">
+                    <i class="bi bi-calendar-date me-1"></i>Tanggal
+                </label>
+                <input type="date" name="tanggal" value="{{ tanggal_filter }}" class="form-control form-control-sm" 
+                       style="border-radius: var(--hf-radius-sm);" onchange="this.form.submit()">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1" style="font-size:0.78rem; font-weight:600; color:#666;">
+                    <i class="bi bi-person-badge me-1"></i>Dokter
+                </label>
+                <select name="dokter" class="form-select form-select-sm" style="border-radius: var(--hf-radius-sm);"
+                        onchange="this.form.submit()">
+                    <option value="">Semua Dokter</option>
+                    {% for d in dokter_list %}
+                        <option value="{{ d.pk }}" {% if dokter_filter == d.pk|stringformat:"d" %}selected{% endif %}>dr. {{ d.nama }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1" style="font-size:0.78rem; font-weight:600; color:#666;">
+                    <i class="bi bi-funnel me-1"></i>Status
+                </label>
+                <select name="status" class="form-select form-select-sm" style="border-radius: var(--hf-radius-sm);"
+                        onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <option value="MENUNGGU" {% if status_filter == 'MENUNGGU' %}selected{% endif %}>Menunggu</option>
+                    <option value="DIPANGGIL" {% if status_filter == 'DIPANGGIL' %}selected{% endif %}>Dipanggil</option>
+                    <option value="SELESAI" {% if status_filter == 'SELESAI' %}selected{% endif %}>Selesai</option>
+                    <option value="DIBATALKAN" {% if status_filter == 'DIBATALKAN' %}selected{% endif %}>Dibatalkan</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'admin_antrean' %}" class="btn btn-outline-secondary btn-sm w-100" style="border-radius: var(--hf-radius-sm);">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Date title -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0">
+            <i class="bi bi-calendar-date me-1"></i> 
+            {% if parsed_date %}
+                Antrean {{ parsed_date|date:"d M Y" }}
+            {% else %}
+                Antrean Hari Ini & Mendatang
+            {% endif %}
+        </h6>
+    </div>
+
+    <!-- Call next buttons per doctor -->
+    <div class="row g-2 mb-4">
+        {% for d in dokter_list %}
+        <div class="col-auto">
+            <form method="post" action="{% url 'admin_panggil_antrean' d.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-hf-primary btn-sm">
+                    <i class="bi bi-megaphone me-1"></i> Panggil — dr. {{ d.nama }}
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Queue table -->
+    <div class="hf-card p-0" style="overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 hf-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">No.</th>
+                        <th>Tanggal</th>
+                        <th>Pasien</th>
+                        <th>Dokter</th>
+                        <th>Klinik/Apotek</th>
+                        <th>Layanan</th>
+                        <th>Keluhan</th>
+                        <th>Status</th>
+                        <th>Dipanggil</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in antrean_list %}
+                    <tr style="{% if a.status == 'DIPANGGIL' %}background-color: #f0fdf4;{% elif a.status == 'DIBATALKAN' %}background-color: #fef2f2; opacity: 0.7;{% elif a.status == 'SELESAI' %}background-color: #f0f9ff; opacity: 0.8;{% endif %}">
+                        <td>
+                            <span class="badge {% if a.status == 'DIPANGGIL' %}bg-success{% elif a.status == 'MENUNGGU' %}bg-warning text-dark{% elif a.status == 'SELESAI' %}bg-primary{% else %}bg-secondary{% endif %}" 
+                                  style="font-size: 0.85rem; min-width: 32px;">
+                                {{ a.nomor_antrian }}
+                            </span>
+                        </td>
+                        <td class="text-primary fw-semibold" style="font-size:0.82rem; white-space:nowrap;">{{ a.reservasi.tanggal_reservasi|date:"d M Y" }}</td>
+                        <td style="font-size:0.85rem;">
+                            <strong>{{ a.reservasi.user.nama }}</strong>
+                        </td>
+                        <td style="font-size:0.82rem;">dr. {{ a.reservasi.jadwal.dokter.nama }}</td>
+                        <td style="font-size:0.78rem; color:#666;">{{ a.reservasi.jadwal.dokter.klinik.nama }}</td>
+                        <td style="font-size:0.78rem;">
+                            <span class="badge bg-light text-dark border" style="font-size:0.72rem;">{{ a.reservasi.jadwal.dokter.jenis_layanan.nama_layanan }}</span>
+                        </td>
+                        <td style="font-size:0.78rem; max-width:180px; color:#555;">
+                            {% if a.reservasi.keluhan %}
+                                <span title="{{ a.reservasi.keluhan }}" style="cursor:help;">
+                                    {{ a.reservasi.keluhan|truncatewords:8 }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if a.status == 'MENUNGGU' %}
+                                <span class="badge" style="background-color: #fef3c7; color: #92400e; font-size:0.75rem;"><i class="bi bi-hourglass-split me-1"></i>Menunggu</span>
+                            {% elif a.status == 'DIPANGGIL' %}
+                                <span class="badge" style="background-color: #d1fae5; color: #065f46; font-size:0.75rem;"><i class="bi bi-megaphone me-1"></i>Dipanggil</span>
+                            {% elif a.status == 'SELESAI' %}
+                                <span class="badge" style="background-color: #dbeafe; color: #1e40af; font-size:0.75rem;"><i class="bi bi-check-circle me-1"></i>Selesai</span>
+                            {% elif a.status == 'DIBATALKAN' %}
+                                <span class="badge" style="background-color: #fee2e2; color: #991b1b; font-size:0.75rem;"><i class="bi bi-x-circle me-1"></i>Dibatalkan</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.82rem;">{% if a.waktu_dipanggil %}{{ a.waktu_dipanggil|time:"H:i" }}{% else %}—{% endif %}</td>
+                        <td style="white-space: nowrap;">
+                            {% if a.status == 'MENUNGGU' %}
+                                <form method="post" action="{% url 'admin_batalkan_antrean' a.pk %}" class="d-inline"
+                                      onsubmit="return confirm('Yakin ingin membatalkan antrean No. {{ a.nomor_antrian }} ({{ a.reservasi.user.nama }})?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Batalkan">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            {% if a.status == 'DIPANGGIL' %}
+                                <form method="post" action="{% url 'admin_selesai_antrean' a.pk %}" class="d-inline"
+                                      onsubmit="return confirm('Tandai antrean No. {{ a.nomor_antrian }} sebagai Selesai?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success" title="Tandai Selesai">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            {% if a.status == 'DIPANGGIL' or a.status == 'SELESAI' %}
+                                <form method="post" action="{% url 'admin_reset_antrean' a.pk %}" class="d-inline"
+                                      onsubmit="return confirm('Yakin ingin mereset antrean ini kembali ke Menunggu?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Reset ke Menunggu">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="10" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox" style="font-size:1.5rem;"></i>
+                        <p class="mb-0 mt-2">Tidak ada antrean ditemukan.</p>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function filterByStatus(status) {
+        const url = new URL(window.location.href);
+        if (status) {
+            url.searchParams.set('status', status);
+        } else {
+            url.searchParams.delete('status');
+        }
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %}
+{% endblock %}

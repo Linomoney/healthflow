@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="hf-admin-layout">
+    <!-- Sidebar -->
+    <aside class="hf-sidebar" id="sidebar">
+        <div class="hf-sidebar-header">
+            <div class="hf-logo">HF</div>
+            <h5>HealthFlow</h5>
+        </div>
+        <ul class="hf-sidebar-menu">
+            <li>
+                <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_user_list' %}" class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-people"></i> Kelola Pasien/User
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_dokter_list' %}" class="{% if 'dokter' in request.resolver_match.url_name or 'jadwal' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-person-badge"></i> Kelola Dokter & Jadwal
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_layanan_list' %}" class="{% if 'layanan' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-heart-pulse"></i> Kelola Jenis Layanan
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_antrean' %}" class="{% if 'antrean' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-list-ol"></i> Monitor Antrean Aktif
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_laporan' %}" class="{% if 'laporan' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-file-earmark-bar-graph"></i> Laporan
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_banner_list' %}" class="{% if 'banner' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-images"></i> Kelola Banner
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_klinik_list' %}" class="{% if 'klinik' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-hospital"></i> Kelola Tempat Praktik
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_logout' %}" style="color: #ef5350;">
+                    <i class="bi bi-box-arrow-left"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="hf-main-content">
+        <!-- Topbar -->
+        <div class="hf-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-outline-secondary d-md-none" onclick="document.getElementById('sidebar').classList.toggle('show')">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h4>{% block page_title %}Dashboard{% endblock %}</h4>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted" style="font-size:0.9rem;">
+                    <i class="bi bi-person-circle me-1"></i>{{ request.user.nama }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="hf-content-area">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="border-radius: var(--hf-radius-sm);">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}

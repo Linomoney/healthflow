@@ -1,0 +1,82 @@
+{% extends "base_pasien.html" %}
+{% block title %}Antrean Saya — HealthFlow{% endblock %}
+
+{% block content %}
+<div class="p-3 fade-in" id="antrean-container"
+     hx-get="{% url 'antrean_saya_partial' %}"
+     hx-trigger="every 8s"
+     hx-target="#antrean-container"
+     hx-swap="innerHTML">
+
+    <h5 class="fw-bold mb-3"><i class="bi bi-ticket-perforated me-2"></i>Antrean Saya</h5>
+
+    {% if antrean_info %}
+        {% for item in antrean_info %}
+        <div class="hf-card p-3 mb-3">
+            <!-- Queue number -->
+            <div class="text-center mb-3">
+                <p class="text-muted mb-1" style="font-size:0.8rem;">Nomor Antrean Anda</p>
+                <div class="hf-queue-number">{{ item.antrian.nomor_antrian }}</div>
+                <span class="badge-{{ item.antrian.status|lower }}">{{ item.antrian.get_status_display }}</span>
+            </div>
+
+            <hr>
+
+            <!-- Doctor info -->
+            <div class="d-flex justify-content-between mb-2" style="font-size:0.85rem;">
+                <span class="text-muted">Dokter</span>
+                <span class="fw-semibold">dr. {{ item.antrian.reservasi.jadwal.dokter.nama }}</span>
+            </div>
+
+            <!-- Date info -->
+            <div class="d-flex justify-content-between mb-2" style="font-size:0.85rem;">
+                <span class="text-muted">Tanggal Kunjungan</span>
+                <span class="fw-semibold text-primary"><i class="bi bi-calendar3 me-1"></i>{{ item.antrian.reservasi.tanggal_reservasi|date:"d M Y" }}</span>
+            </div>
+
+            <!-- Currently called -->
+            <div class="d-flex justify-content-between mb-2" style="font-size:0.85rem;">
+                <span class="text-muted">Sedang Dipanggil</span>
+                <span class="fw-bold" style="color: var(--hf-blue);">
+                    {% if item.nomor_dipanggil > 0 %}No. {{ item.nomor_dipanggil }}{% else %}—{% endif %}
+                </span>
+            </div>
+
+            <!-- Remaining ahead -->
+            <div class="d-flex justify-content-between mb-2" style="font-size:0.85rem;">
+                <span class="text-muted">Sisa di Depan Anda</span>
+                <span class="fw-semibold">{{ item.sisa_depan }} orang</span>
+            </div>
+
+            <!-- Estimated wait -->
+            <div class="d-flex justify-content-between mb-3" style="font-size:0.85rem;">
+                <span class="text-muted">Estimasi Tunggu</span>
+                <span class="fw-semibold">± {{ item.estimasi }} menit</span>
+            </div>
+
+            <!-- Alert if close -->
+            {% if item.segera %}
+            <div class="hf-queue-alert mb-3">
+                <i class="bi bi-bell-fill me-1"></i> Antrean Anda akan segera dipanggil, harap bersiap!
+            </div>
+            {% endif %}
+
+            <!-- Cancel button -->
+            {% if item.antrian.status == 'MENUNGGU' %}
+            <a href="{% url 'batalkan_antrean' item.antrian.pk %}" class="btn btn-hf-danger btn-sm w-100">
+                <i class="bi bi-x-circle me-1"></i> Batalkan Antrean
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-ticket-perforated text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">Anda tidak memiliki antrean atau booking aktif saat ini.</p>
+            <a href="{% url 'dokter_list' %}" class="btn btn-hf-primary btn-sm mt-2">
+                <i class="bi bi-search me-1"></i> Cari Dokter & Daftar
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
