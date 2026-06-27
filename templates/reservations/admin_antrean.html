@@ -185,6 +185,13 @@
                         <td style="font-size:0.82rem;">{% if a.waktu_dipanggil %}{{ a.waktu_dipanggil|time:"H:i" }}{% else %}—{% endif %}</td>
                         <td style="white-space: nowrap;">
                             {% if a.status == 'MENUNGGU' %}
+                                <form method="post" action="{% url 'admin_panggil_antrean_individu' a.pk %}" class="d-inline"
+                                      onsubmit="return confirm('Panggil antrean No. {{ a.nomor_antrian }} ({{ a.reservasi.user.nama }})?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-primary" title="Panggil">
+                                        <i class="bi bi-megaphone"></i>
+                                    </button>
+                                </form>
                                 <form method="post" action="{% url 'admin_batalkan_antrean' a.pk %}" class="d-inline"
                                       onsubmit="return confirm('Yakin ingin membatalkan antrean No. {{ a.nomor_antrian }} ({{ a.reservasi.user.nama }})?')">
                                     {% csrf_token %}

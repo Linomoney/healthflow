@@ -344,6 +344,18 @@ def admin_panggil_antrean(request, dokter_id):
 
 
 @admin_required
+def admin_panggil_antrean_individu(request, pk):
+    """Panggil antrean spesifik berdasarkan ID."""
+    if request.method == 'POST':
+        antrian = get_object_or_404(Antrian, pk=pk, status='MENUNGGU')
+        antrian.status = 'DIPANGGIL'
+        antrian.waktu_dipanggil = timezone.now()
+        antrian.save()
+        messages.success(request, f'Antrean No. {antrian.nomor_antrian} ({antrian.reservasi.user.nama}) dipanggil.')
+    return redirect('admin_antrean')
+
+
+@admin_required
 def admin_selesai_antrean(request, pk):
     """Tandai antrean sebagai selesai + buat RiwayatKunjungan."""
     antrian = get_object_or_404(Antrian, pk=pk, status='DIPANGGIL')
