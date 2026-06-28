@@ -120,6 +120,9 @@ STORAGES = {
     },
 }
 
+# Django 5.0 compatibility workaround for django-cloudinary-storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
