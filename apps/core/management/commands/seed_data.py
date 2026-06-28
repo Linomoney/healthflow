@@ -90,9 +90,9 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"Layanan dibuat: {nama}"))
 
         # 4. Generate Dummy Images (untuk foto dokter dan banner)
-        dummy_doctor_image = None
-        dummy_banner_image_1 = None
-        dummy_banner_image_2 = None
+        doctor_img_bytes = None
+        banner_1_bytes = None
+        banner_2_bytes = None
 
         if Image:
             # Foto Dokter
@@ -101,7 +101,7 @@ class Command(BaseCommand):
             d_doc.text((100, 140), "FOTO DOKTER", fill="white")
             f_doc = io.BytesIO()
             img_doc.save(f_doc, format="JPEG")
-            dummy_doctor_image = ContentFile(f_doc.getvalue(), name="doctor_placeholder.jpg")
+            doctor_img_bytes = f_doc.getvalue()
 
             # Banner 1
             img_b1 = Image.new("RGB", (800, 400), color="#1E88E5")
@@ -109,7 +109,7 @@ class Command(BaseCommand):
             d_b1.text((300, 180), "PROMO IMUNISASI", fill="white")
             f_b1 = io.BytesIO()
             img_b1.save(f_b1, format="JPEG")
-            dummy_banner_image_1 = ContentFile(f_b1.getvalue(), name="banner_imunisasi.jpg")
+            banner_1_bytes = f_b1.getvalue()
 
             # Banner 2
             img_b2 = Image.new("RGB", (800, 400), color="#43C6AC")
@@ -117,7 +117,7 @@ class Command(BaseCommand):
             d_b2.text((300, 180), "KONSULTASI ONLINE", fill="white")
             f_b2 = io.BytesIO()
             img_b2.save(f_b2, format="JPEG")
-            dummy_banner_image_2 = ContentFile(f_b2.getvalue(), name="banner_konsultasi.jpg")
+            banner_2_bytes = f_b2.getvalue()
 
         # 5. Buat Tempat Praktik (Klinik & Apotek)
         klinik_data = [
@@ -167,8 +167,8 @@ class Command(BaseCommand):
                     "aktif": True,
                 }
             )
-            if created and dummy_doctor_image:
-                dokter.foto.save("doc_placeholder.jpg", dummy_doctor_image)
+            if created and doctor_img_bytes:
+                dokter.foto.save("doc_placeholder.jpg", ContentFile(doctor_img_bytes, name="doc_placeholder.jpg"))
                 dokter.save()
             dokters.append(dokter)
             if created:
@@ -197,10 +197,10 @@ class Command(BaseCommand):
 
         # 8. Buat Banner Promo
         banners_data = [
-            ("Imunisasi Anak Gratis", "Imunisasi dasar lengkap untuk anak usia 0-2 tahun setiap hari Rabu.", dummy_banner_image_1, 1),
-            ("Konsultasi Gizi Khusus", "Dapatkan potongan harga konsultasi gizi dengan Ahli Gizi kami khusus bulan ini.", dummy_banner_image_2, 2),
+            ("Imunisasi Anak Gratis", "Imunisasi dasar lengkap untuk anak usia 0-2 tahun setiap hari Rabu.", banner_1_bytes, 1),
+            ("Konsultasi Gizi Khusus", "Dapatkan potongan harga konsultasi gizi dengan Ahli Gizi kami khusus bulan ini.", banner_2_bytes, 2),
         ]
-        for judul, deskripsi, img_file, urutan in banners_data:
+        for judul, deskripsi, img_bytes, urutan in banners_data:
             banner, created = Banner.objects.get_or_create(
                 judul=judul,
                 defaults={
@@ -209,8 +209,8 @@ class Command(BaseCommand):
                     "aktif": True,
                 }
             )
-            if created and img_file:
-                banner.gambar.save(f"banner_{urutan}.jpg", img_file)
+            if created and img_bytes:
+                banner.gambar.save(f"banner_{urutan}.jpg", ContentFile(img_bytes, name=f"banner_{urutan}.jpg"))
                 banner.save()
             if created:
                 self.stdout.write(self.style.SUCCESS(f"Banner dibuat: {judul}"))
